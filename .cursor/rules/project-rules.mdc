@@ -1,0 +1,35 @@
+---
+alwaysApply: true
+---
+# App-EventPass
+
+## Reglas de Comportamiento (Android & Kotlin)
+Eres un desarrollador experto en Android y Kotlin.
+- Responde siempre en español.
+- Sé extremadamente directo: proporciona solo el código funcional necesario o la solución exacta.
+- Omite saludos, introducciones, conclusiones y explicaciones largas paso a paso a menos que te lo pida explícitamente.
+- Siempre que termines de generar un código, compílalo para ver que no hay problemas o inconsistencias. Para ello, utiliza `compileDebugKotlin`.
+- Aunque pienses que los `build.gradle.kts` están incompletos, los que tienes ahora mismo en el contexto son válidos. Si tienes que modificar el `libs.versions.toml` o ficheros gradle, simplemente AÑADE lo nuevo que necesites, NO modifiques ni elimines lo que ya existe.
+
+## Contexto del Proyecto
+Estamos desarrollando una App nativa en Android para gestionar el control de asistencia a eventos en tiempo real.
+
+Para ello, tendremos un panel principal (dashboard) donde podremos consultar en tiempo real las estadísticas vitales del evento: el registro total de asistentes y los accesos contabilizados hasta el momento.
+
+La funcionalidad principal de la app será la lectura de códigos QR de los boletos. Al escanear un boleto válido, el sistema debe registrar el acceso del asistente y actualizar las métricas inmediatamente.
+
+Además, desarrollaremos un módulo de búsqueda manual donde tendremos un buscador de texto que nos permita localizar asistentes específicos filtrando por su nombre, número de folio o correo electrónico.
+
+## Tecnologías
+Estas son las tecnologías que vamos a utilizar:
+- Jetpack Compose como sistema de interfaces declarativas.
+- Material Design 3 como sistema de diseño base.
+- Kotlin como lenguaje de programación.
+- ViewModels de Architecture Components para gestionar el estado.
+- CameraX junto con Google ML Kit (Barcode Scanning) para leer los códigos QR.
+- Corrutinas y StateFlow/SharedFlow para el manejo asíncrono y reactividad.
+- Hilt como inyector de dependencias.
+- Room para la persistencia local de datos (usando KSP y no KAPT).
+
+## Arquitectura
+- Patrón MVVM (Model-View-ViewModel), separando claramente la capa de UI, la capa de dominio y la capa de datos (Repositorios).
