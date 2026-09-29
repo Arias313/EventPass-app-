@@ -11,6 +11,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.eventpass.ui.dashboard.DashboardScreen
 import com.example.eventpass.ui.scanner.ScannerScreen
+import com.example.eventpass.ui.splash.SplashScreen
 import com.example.eventpass.ui.theme.EventPassTheme
 
 class MainActivity : ComponentActivity() {
@@ -22,9 +23,18 @@ class MainActivity : ComponentActivity() {
                 val navController = rememberNavController()
                 NavHost(
                     navController = navController,
-                    startDestination = "dashboard",
+                    startDestination = "splash",
                     modifier = Modifier.fillMaxSize()
                 ) {
+                    composable("splash") {
+                        SplashScreen(
+                            onNavigateToDashboard = {
+                                navController.navigate("dashboard") {
+                                    popUpTo("splash") { inclusive = true }
+                                }
+                            }
+                        )
+                    }
                     composable("dashboard") {
                         DashboardScreen(
                             onNavigateToScanner = { navController.navigate("scanner") }
