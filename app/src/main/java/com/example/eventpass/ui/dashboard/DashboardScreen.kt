@@ -40,19 +40,18 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.eventpass.domain.model.Assistant
 import com.example.eventpass.ui.theme.EventPassTheme
-import java.text.SimpleDateFormat
-import java.util.Date
-import java.util.Locale
 
 @Composable
 fun DashboardScreen(
     modifier: Modifier = Modifier,
-    viewModel: DashboardViewModel = viewModel()
+    viewModel: DashboardViewModel = viewModel(),
+    onNavigateToScanner: () -> Unit = {}
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     DashboardContent(
         uiState = uiState,
         onRegisterAccess = viewModel::registerAccess,
+        onNavigateToScanner = onNavigateToScanner,
         modifier = modifier
     )
 }
@@ -62,6 +61,7 @@ fun DashboardScreen(
 private fun DashboardContent(
     uiState: DashboardUiState,
     onRegisterAccess: (Assistant) -> Unit,
+    onNavigateToScanner: () -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     Scaffold(
@@ -113,18 +113,7 @@ private fun DashboardContent(
                 }
                 Spacer(modifier = Modifier.height(24.dp))
                 Button(
-                    onClick = {
-                        val nextCount = uiState.currentAccessCount + 1
-                        onRegisterAccess(
-                            Assistant(
-                                id = nextCount.toString(),
-                                name = "Asistente $nextCount",
-                                folio = "EP-${1000 + nextCount}",
-                                timestamp = SimpleDateFormat("HH:mm", Locale.getDefault())
-                                    .format(Date())
-                            )
-                        )
-                    },
+                    onClick = onNavigateToScanner,
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(56.dp)
