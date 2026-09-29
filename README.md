@@ -33,5 +33,8 @@ El diseño UI/UX se conceptualizó previamente en Figma y se implementó de mane
 
 ---
 
+## VIDEO DE FUNCIONALIDAD DE LA APP
+https://drive.google.com/drive/folders/1lM1_-6mu0MgY1J8j-XGGuRATGK7SJaUj
+
 ## 🔗 Enlace al Repositorio
 https://github.com/Arias313/EventPass-app-
