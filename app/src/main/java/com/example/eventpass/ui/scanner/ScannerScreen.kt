@@ -3,7 +3,6 @@ package com.example.eventpass.ui.scanner
 import android.Manifest
 import android.content.pm.PackageManager
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.camera.core.CameraSelector
@@ -22,24 +21,30 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.compose.LocalLifecycleOwner
+import androidx.lifecycle.viewmodel.compose.viewModel
 import java.util.concurrent.Executors
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ScannerScreen(
     onNavigateBack: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    viewModel: ScannerViewModel = viewModel() // Inyectamos el ViewModel
 ) {
     val context = LocalContext.current
+    val haptic = LocalHapticFeedback.current // Para la vibración
+    val scannerState by viewModel.scannerState.collectAsState()
 
-    // Estado para verificar si tenemos el permiso
     var hasCameraPermission by remember {
         mutableStateOf(
             ContextCompat.checkSelfPermission(
@@ -49,21 +54,31 @@ fun ScannerScreen(
         )
     }
 
-    // Control para evitar mensajes duplicados continuos
-    var lastScannedCode by remember { mutableStateOf<String?>(null) }
-
-    // El disparador del mensaje clásico de permisos de Android
     val permissionLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestPermission()
     ) { isGranted ->
         hasCameraPermission = isGranted
     }
 
-    // Esto lanza el mensaje apenas entras a la pantalla
     LaunchedEffect(Unit) {
         if (!hasCameraPermission) {
             permissionLauncher.launch(Manifest.permission.CAMERA)
         }
+    }
+
+    // Efecto para vibrar cuando el estado cambia a Válido o Inválido
+    LaunchedEffect(scannerState) {
+        if (scannerState is ScannerState.Valid || scannerState is ScannerState.Invalid) {
+            haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+        }
+    }
+
+    // Calculamos el color del borde según el estado
+    val frameColor = when (scannerState) {
+        is ScannerState.Idle -> Color.White
+        is ScannerState.Processing -> Color.Yellow
+        is ScannerState.Valid -> Color.Green
+        is ScannerState.Invalid -> Color.Red
     }
 
     Scaffold(
@@ -89,43 +104,71 @@ fun ScannerScreen(
             contentAlignment = Alignment.Center
         ) {
             if (hasCameraPermission) {
-                // Cámara real con análisis de QR
                 CameraPreview(
                     modifier = Modifier.fillMaxSize(),
                     onQrCodeScanned = { qrResult ->
-                        if (qrResult != lastScannedCode) {
-                            lastScannedCode = qrResult
-                            Toast.makeText(context, "QR Detectado: $qrResult", Toast.LENGTH_SHORT).show()
-                        }
+                        // En lugar del Toast, le pasamos el QR al ViewModel
+                        viewModel.validateTicket(qrResult)
                     }
                 )
 
+                // El cuadro que cambia de color
                 Box(
                     modifier = Modifier
                         .size(280.dp)
                         .border(
-                            width = 3.dp,
-                            color = Color.Green,
+                            width = 4.dp,
+                            color = frameColor,
                             shape = RoundedCornerShape(16.dp)
                         )
                 )
 
-                Text(
-                    text = "Apunta el código QR del boleto dentro del recuadro",
-                    color = Color.White,
-                    fontSize = 14.sp,
-                    fontWeight = FontWeight.Medium,
+                // La interfaz de mensajes abajo
+                Column(
                     modifier = Modifier
                         .align(Alignment.BottomCenter)
-                        .padding(bottom = 48.dp)
-                        .background(
-                            color = Color.Black.copy(alpha = 0.6f),
-                            shape = RoundedCornerShape(8.dp)
-                        )
-                        .padding(horizontal = 12.dp, vertical = 6.dp)
-                )
+                        .padding(bottom = 48.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    when (val state = scannerState) {
+                        is ScannerState.Processing -> {
+                            CircularProgressIndicator(color = Color.Yellow)
+                            Text("Validando...", color = Color.Yellow, modifier = Modifier.padding(top = 8.dp))
+                        }
+                        is ScannerState.Valid -> {
+                            Text(state.message, color = Color.Green, fontWeight = FontWeight.Bold, fontSize = 18.sp, textAlign = TextAlign.Center)
+                            Button(
+                                onClick = { viewModel.resetScanner() },
+                                colors = ButtonDefaults.buttonColors(containerColor = Color.Green),
+                                modifier = Modifier.padding(top = 16.dp)
+                            ) {
+                                Text("Siguiente Boleto", color = Color.Black)
+                            }
+                        }
+                        is ScannerState.Invalid -> {
+                            Text(state.message, color = Color.Red, fontWeight = FontWeight.Bold, fontSize = 18.sp, textAlign = TextAlign.Center)
+                            Button(
+                                onClick = { viewModel.resetScanner() },
+                                colors = ButtonDefaults.buttonColors(containerColor = Color.Red),
+                                modifier = Modifier.padding(top = 16.dp)
+                            ) {
+                                Text("Reintentar", color = Color.White)
+                            }
+                        }
+                        is ScannerState.Idle -> {
+                            Text(
+                                text = "Apunta el código QR del boleto dentro del recuadro",
+                                color = Color.White,
+                                fontSize = 14.sp,
+                                modifier = Modifier
+                                    .background(Color.Black.copy(alpha = 0.6f), RoundedCornerShape(8.dp))
+                                    .padding(horizontal = 12.dp, vertical = 6.dp),
+                                textAlign = TextAlign.Center
+                            )
+                        }
+                    }
+                }
             } else {
-                // Si rechazó el permiso temporalmente, le mostramos un botón
                 Column(
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.Center
@@ -146,6 +189,7 @@ fun ScannerScreen(
     }
 }
 
+// ESTA FUNCIÓN ESTÁ INTACTA DE TU CÓDIGO ORIGINAL
 @Composable
 private fun CameraPreview(
     modifier: Modifier = Modifier,
@@ -169,7 +213,6 @@ private fun CameraPreview(
                         it.setSurfaceProvider(surfaceProvider)
                     }
 
-                    // Configuración del caso de uso de Análisis para ML Kit
                     val imageAnalysis = ImageAnalysis.Builder()
                         .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
                         .build()
