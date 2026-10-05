@@ -1,8 +1,9 @@
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.compose)
+// Agrega esta línea:
+    id("com.google.gms.google-services")
 }
-
 android {
     namespace = "com.example.eventpass"
     compileSdk {
@@ -64,4 +65,25 @@ dependencies {
     implementation(libs.androidx.camera.view)
     implementation(libs.play.services.code.scanner)
     implementation("com.google.mlkit:barcode-scanning:17.3.0")
+// --- FIREBASE ---
+    // Importa el BoM de Firebase (el controlador de versiones)
+    implementation(platform("com.google.firebase:firebase-bom:34.19.0"))
+
+    // Librería para Login / Registro (Firebase Auth)
+    implementation("com.google.firebase:firebase-auth")
+
+    // Librería para Base de Datos en la nube (Firestore)
+    implementation("com.google.firebase:firebase-firestore")
+    // --- REQUERIMIENTOS DEL PROFESOR ---
+
+    // 1. Base de datos SQLite (Room) para modo Offline
+    implementation("androidx.room:room-runtime:2.6.1")
+    implementation("androidx.room:room-ktx:2.6.1")
+
+    // 2. Extra: Conexión Web API (Retrofit)
+    implementation("com.squareup.retrofit2:retrofit:2.11.0")
+    implementation("com.squareup.retrofit2:converter-gson:2.11.0")
+
+    // 3. Proveedor de Imágenes y Video (Cloudinary)
+    implementation("com.cloudinary:cloudinary-android:3.0.2")
 }
