@@ -6,7 +6,7 @@ El proyecto permite autenticar al personal/administrador mediante **JWT cifrado 
 
 ---
 
-## 🎨 Diseños de Interfaz
+## Diseños de Interfaz
 
 El diseño UI/UX se conceptualizó previamente en Figma y se implementó de manera declarativa con Jetpack Compose siguiendo la paleta oficial de EventPass (`MidnightPanel #020618`, `DeepSlate #0F172A`, `SteelOutline #334155`, `NuxtSignal #00DC82`):
 
@@ -40,7 +40,7 @@ El diseño UI/UX se conceptualizó previamente en Figma y se implementó de mane
 
 ---
 
-## 🏛️ Estructura Limpia de Paquetes (Arquitectura MVVM + Repository)
+## Estructura Limpia de Paquetes (Arquitectura MVVM + Repository)
 
 ```text
 com.example.eventpass
@@ -72,7 +72,7 @@ com.example.eventpass
 
 ---
 
-## 🛡️ Matriz de Cumplimiento Ético, Seguridad y Calidad (MVP)
+## Matriz de Cumplimiento Ético, Seguridad y Calidad (MVP)
 
 | Criterio | Estado | Implementación en el Código de EventPass |
 | :--- | :---: | :--- |
@@ -86,7 +86,7 @@ com.example.eventpass
 
 ---
 
-## 🛠️ Tecnologías y Herramientas
+## Tecnologías y Herramientas
 
 * **Lenguaje:** Kotlin (`2.2.10`) + KSP (`2.2.10-2.0.2`)
 * **UI Framework:** Jetpack Compose (Material Design 3)
@@ -96,17 +96,6 @@ com.example.eventpass
 * **Base de Datos Local (Offline-First):** Room SQLite (`2.7.2`)
 * **Seguridad Local:** AndroidX Security Crypto (`EncryptedSharedPreferences`)
 * **Backend & Plataforma Principal:** Node.js / Express + MongoDB Atlas desplegado en Render
-
----
-
-## 🚀 Instrucciones de Ejecución (Clonado Directo)
-
-1. Clonar el repositorio:
-   ```bash
-   git clone https://github.com/Arias313/EventPass-app-.git
-   ```
-2. Abrir la carpeta `EventPass` en **Android Studio**.
-3. Esperar la sincronización automática de Gradle y ejecutar la configuración **`app`** en un dispositivo físico o emulador (la app se conecta automáticamente al backend en producción `https://eventpass-web-cnyn.onrender.com/`).
 
 ---
 
