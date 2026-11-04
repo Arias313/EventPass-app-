@@ -12,15 +12,19 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CheckCircle
-import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.QrCodeScanner
+import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FilterChip
+import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -30,6 +34,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -38,6 +43,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.eventpass.data.remote.EventoDto
 import com.example.eventpass.domain.model.Assistant
 import com.example.eventpass.ui.theme.EventPassTheme
 
@@ -48,8 +54,16 @@ fun DashboardScreen(
     onNavigateToScanner: () -> Unit = {}
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+
+    // Refresca el aforo y asistentes al volver desde el escáner QR
+    LaunchedEffect(Unit) {
+        viewModel.loadDashboardData()
+    }
+
     DashboardContent(
         uiState = uiState,
+        onRefresh = viewModel::loadDashboardData,
+        onSelectEvent = viewModel::selectEvent,
         onRegisterAccess = viewModel::registerAccess,
         onNavigateToScanner = onNavigateToScanner,
         modifier = modifier
@@ -60,6 +74,8 @@ fun DashboardScreen(
 @Composable
 private fun DashboardContent(
     uiState: DashboardUiState,
+    onRefresh: () -> Unit = {},
+    onSelectEvent: (EventoDto) -> Unit = {},
     onRegisterAccess: (Assistant) -> Unit,
     onNavigateToScanner: () -> Unit = {},
     modifier: Modifier = Modifier
@@ -70,14 +86,32 @@ private fun DashboardContent(
             TopAppBar(
                 title = { Text("EventPass Admin") },
                 actions = {
-                    IconButton(onClick = {}) {
+                    IconButton(onClick = onRefresh) {
                         Icon(
-                            imageVector = Icons.Filled.Person,
-                            contentDescription = "Perfil"
+                            imageVector = Icons.Filled.Refresh,
+                            contentDescription = "Actualizar datos"
+                        )
+                    }
+                    IconButton(onClick = onNavigateToScanner) {
+                        Icon(
+                            imageVector = Icons.Filled.QrCodeScanner,
+                            contentDescription = "Escanear QR"
                         )
                     }
                 }
             )
+        },
+        floatingActionButton = {
+            FloatingActionButton(
+                onClick = onNavigateToScanner,
+                containerColor = MaterialTheme.colorScheme.primary
+            ) {
+                Icon(
+                    imageVector = Icons.Filled.QrCodeScanner,
+                    contentDescription = "Escanear QR",
+                    tint = MaterialTheme.colorScheme.onPrimary
+                )
+            }
         }
     ) { innerPadding ->
         Box(
@@ -91,10 +125,37 @@ private fun DashboardContent(
                     .padding(horizontal = 16.dp)
             ) {
                 Text(
-                    text = "Monitoreo",
+                    text = "Evento Activo: ${uiState.selectedEventName}",
                     style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.SemiBold
+                    fontWeight = FontWeight.SemiBold,
+                    color = MaterialTheme.colorScheme.primary
                 )
+
+                if (uiState.eventos.size > 1) {
+                    Spacer(modifier = Modifier.height(8.dp))
+                    LazyRow(
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        items(uiState.eventos, key = { it.eventoId }) { evento ->
+                            FilterChip(
+                                selected = evento.eventoId == uiState.selectedEventId,
+                                onClick = { onSelectEvent(evento) },
+                                label = { Text(evento.displayName) }
+                            )
+                        }
+                    }
+                }
+
+                if (uiState.errorMessage != null) {
+                    Spacer(modifier = Modifier.height(6.dp))
+                    Text(
+                        text = uiState.errorMessage,
+                        color = MaterialTheme.colorScheme.error,
+                        style = MaterialTheme.typography.bodySmall
+                    )
+                }
+
                 Spacer(modifier = Modifier.height(12.dp))
                 Row(
                     modifier = Modifier.fillMaxWidth(),
@@ -106,7 +167,7 @@ private fun DashboardContent(
                         modifier = Modifier.weight(1f)
                     )
                     MetricCard(
-                        title = "Accesos Hoy",
+                        title = "Accesos Confirmados",
                         value = uiState.currentAccessCount.toString(),
                         modifier = Modifier.weight(1f)
                     )
@@ -122,7 +183,7 @@ private fun DashboardContent(
                 }
                 Spacer(modifier = Modifier.height(28.dp))
                 Text(
-                    text = "Últimos asistentes",
+                    text = "Asistentes del Evento",
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.SemiBold
                 )
@@ -134,7 +195,7 @@ private fun DashboardContent(
                     items(uiState.recentAssistants, key = { it.id }) { assistant ->
                         ListItem(
                             headlineContent = { Text(assistant.name) },
-                            supportingContent = { Text("Folio ${assistant.folio}") },
+                            supportingContent = { Text("PIN: ${assistant.folio}") },
                             trailingContent = { Text(assistant.timestamp) },
                             leadingContent = {
                                 Icon(
@@ -190,6 +251,8 @@ private fun DashboardScreenPreview() {
     EventPassTheme {
         DashboardContent(
             uiState = DashboardUiState(
+                selectedEventName = "Conferencia Tech 2026",
+                totalCapacity = 500,
                 currentAccessCount = 3,
                 recentAssistants = listOf(
                     Assistant("3", "Ana Martínez", "EP-1042", "19:42"),

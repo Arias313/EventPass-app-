@@ -83,6 +83,10 @@ dependencies {
     // 2. Extra: Conexión Web API (Retrofit)
     implementation("com.squareup.retrofit2:retrofit:2.11.0")
     implementation("com.squareup.retrofit2:converter-gson:2.11.0")
+    implementation("com.squareup.okhttp3:logging-interceptor:4.12.0")
+
+    // Seguridad: EncryptedSharedPreferences (SessionManager)
+    implementation("androidx.security:security-crypto:1.1.0-alpha06")
 
     // 3. Proveedor de Imágenes y Video (Cloudinary)
     implementation("com.cloudinary:cloudinary-android:3.0.2")

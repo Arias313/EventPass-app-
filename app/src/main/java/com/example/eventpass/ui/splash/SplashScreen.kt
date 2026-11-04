@@ -17,13 +17,13 @@ import kotlinx.coroutines.delay
 
 @Composable
 fun SplashScreen(
-    onNavigateToDashboard: () -> Unit,
+    onNavigateToLogin: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     // Temporizador de 2 segundos y luego navega
     LaunchedEffect(Unit) {
         delay(2000)
-        onNavigateToDashboard()
+        onNavigateToLogin()
     }
 
     Box(
@@ -45,6 +45,6 @@ fun SplashScreen(
 @Composable
 private fun SplashScreenPreview() {
     EventPassTheme {
-        SplashScreen(onNavigateToDashboard = {})
+        SplashScreen(onNavigateToLogin = {})
     }
 }
