@@ -10,9 +10,9 @@ El proyecto permite autenticar al personal/administrador mediante **JWT cifrado 
 
 El diseño UI/UX se conceptualizó previamente en Figma y se implementó de manera declarativa con Jetpack Compose siguiendo la paleta oficial de EventPass (`MidnightPanel #020618`, `DeepSlate #0F172A`, `SteelOutline #334155`, `NuxtSignal #00DC82`):
 
-| 1. Splash Screen | 2. Home Screen | 3. Escáner QR |
-| :---: | :---: | :---: |
-| ![Splash](screenshots/splash.png) | ![Home](screenshots/home.png) | ![Scanner](screenshots/scanner.png) |
+| 1. Splash Screen | 2. Login JWT | 3. Dashboard | 4. Escáner QR | 5. Perfil y Seguridad |
+| :---: | :---: | :---: | :---: | :---: |
+| ![Splash](screenshots/splash.png) | ![Login](screenshots/login.png) | ![Home](screenshots/home.png) | ![Scanner](screenshots/scanner.png) | ![Profile](screenshots/profile.png) |
 
 ---
 
