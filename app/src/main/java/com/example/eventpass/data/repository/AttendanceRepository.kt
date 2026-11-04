@@ -93,6 +93,15 @@ class AttendanceRepository(
         rawQrCode: String
     ): CheckInOutcome {
         val cleanPayload = rawQrCode.trim()
+
+        // Seguridad Informática (Pilar 2.2): Sanitización contra QR maliciosos, URLs o inyecciones NoSQL/XSS
+        if (!isSafeQrPayload(cleanPayload)) {
+            return CheckInOutcome.Invalid(
+                message = "Formato de QR bloqueado por seguridad",
+                code = cleanPayload.take(24)
+            )
+        }
+
         val extractedPin = extractPinFromPayload(cleanPayload)
 
         if (isNetworkAvailable()) {
@@ -271,6 +280,20 @@ class AttendanceRepository(
             e.printStackTrace()
             0
         }
+    }
+
+    /**
+     * Valida que el payload del código QR cumpla con la estructura de EventPass
+     * y no contenga scripts, URLs externas ni caracteres de inyección NoSQL/SQL.
+     */
+    private fun isSafeQrPayload(payload: String): Boolean {
+        if (payload.length !in 4..120) return false
+        val lower = payload.lowercase(Locale.ROOT)
+        if (lower.startsWith("http://") || lower.startsWith("https://") || lower.startsWith("javascript:")) {
+            return false
+        }
+        val forbiddenChars = charArrayOf('$', '{', '}', '<', '>', ';', '\'', '"', '\\')
+        return payload.none { it in forbiddenChars }
     }
 
     /**

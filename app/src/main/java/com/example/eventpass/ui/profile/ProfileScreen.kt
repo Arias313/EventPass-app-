@@ -1,6 +1,7 @@
 package com.example.eventpass.ui.profile
 
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -12,14 +13,20 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.ExitToApp
 import androidx.compose.material.icons.filled.CloudDone
+import androidx.compose.material.icons.filled.Eco
 import androidx.compose.material.icons.filled.Event
+import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.QrCodeScanner
+import androidx.compose.material.icons.filled.Shield
 import androidx.compose.material.icons.filled.Storage
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -49,7 +56,6 @@ import com.example.eventpass.ui.theme.EventPassTheme
 import com.example.eventpass.ui.theme.MidnightPanel
 import com.example.eventpass.ui.theme.MutedFog
 import com.example.eventpass.ui.theme.NuxtSignal
-import com.example.eventpass.ui.theme.NuxtSignalSurface
 import com.example.eventpass.ui.theme.SignalWhite
 import com.example.eventpass.ui.theme.StatusRed
 import com.example.eventpass.ui.theme.SteelOutline
@@ -75,7 +81,7 @@ fun ProfileScreen(
             TopAppBar(
                 title = {
                     Text(
-                        text = "Perfil de Operador",
+                        text = "Perfil y Seguridad",
                         fontWeight = FontWeight.Bold,
                         color = SignalWhite
                     )
@@ -99,93 +105,142 @@ fun ProfileScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
-                .padding(24.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.SpaceBetween
+                .verticalScroll(rememberScrollState())
+                .padding(horizontal = 20.dp, vertical = 16.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Column(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalAlignment = Alignment.CenterHorizontally
+            Surface(
+                modifier = Modifier.size(76.dp),
+                shape = CircleShape,
+                color = DeepSlate,
+                border = BorderStroke(1.dp, SteelOutline)
             ) {
-                Surface(
-                    modifier = Modifier.size(88.dp),
-                    shape = CircleShape,
-                    color = NuxtSignalSurface,
-                    border = BorderStroke(1.5.dp, NuxtSignal.copy(alpha = 0.45f))
-                ) {
-                    Box(contentAlignment = Alignment.Center) {
-                        Icon(
-                            imageVector = Icons.Default.Person,
-                            contentDescription = "Avatar de perfil",
-                            modifier = Modifier.size(44.dp),
-                            tint = NuxtSignal
-                        )
-                    }
-                }
-
-                Spacer(modifier = Modifier.height(14.dp))
-
-                Text(
-                    text = "Operador EventPass",
-                    style = MaterialTheme.typography.headlineSmall,
-                    fontWeight = FontWeight.Bold,
-                    color = SignalWhite
-                )
-
-                Spacer(modifier = Modifier.height(8.dp))
-
-                Surface(
-                    color = NuxtSignalSurface,
-                    shape = RoundedCornerShape(20.dp),
-                    border = BorderStroke(1.dp, NuxtSignal.copy(alpha = 0.35f))
-                ) {
-                    Text(
-                        text = "● SESIÓN ACTIVA • JWT CIFRADO",
-                        color = NuxtSignal,
-                        style = MaterialTheme.typography.labelSmall,
-                        modifier = Modifier.padding(horizontal = 12.dp, vertical = 5.dp)
+                Box(contentAlignment = Alignment.Center) {
+                    Icon(
+                        imageVector = Icons.Default.Person,
+                        contentDescription = "Avatar de operador",
+                        modifier = Modifier.size(38.dp),
+                        tint = SignalWhite
                     )
                 }
+            }
 
-                Spacer(modifier = Modifier.height(28.dp))
+            Spacer(modifier = Modifier.height(12.dp))
 
-                Card(
-                    modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(16.dp),
-                    colors = CardDefaults.cardColors(containerColor = DeepSlate),
-                    border = BorderStroke(1.dp, SteelOutline)
+            Text(
+                text = "Operador EventPass",
+                style = MaterialTheme.typography.titleLarge,
+                fontWeight = FontWeight.Bold,
+                color = SignalWhite
+            )
+
+            Spacer(modifier = Modifier.height(6.dp))
+
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier
+                    .background(color = DeepSlate, shape = RoundedCornerShape(16.dp))
+                    .padding(horizontal = 12.dp, vertical = 5.dp)
+            ) {
+                Box(
+                    modifier = Modifier
+                        .size(7.dp)
+                        .background(color = NuxtSignal, shape = CircleShape)
+                )
+                Spacer(modifier = Modifier.width(6.dp))
+                Text(
+                    text = "Sesión JWT cifrada (AES-256)",
+                    color = MutedFog,
+                    style = MaterialTheme.typography.labelSmall
+                )
+            }
+
+            Spacer(modifier = Modifier.height(22.dp))
+
+            // Tarjeta 1: Estado de la Terminal
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(16.dp),
+                colors = CardDefaults.cardColors(containerColor = DeepSlate),
+                border = BorderStroke(1.dp, SteelOutline)
+            ) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(18.dp),
+                    verticalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
-                    Column(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(20.dp),
-                        verticalArrangement = Arrangement.spacedBy(14.dp)
-                    ) {
-                        Text(
-                            text = "DIAGNÓSTICO DE TERMINAL",
-                            style = MaterialTheme.typography.labelSmall,
-                            color = NuxtSignal,
-                            fontWeight = FontWeight.Bold
-                        )
-                        HorizontalDivider(color = SteelOutline)
-                        ProfileInfoRow(
-                            icon = Icons.Default.Event,
-                            label = "Evento asignado en puerta",
-                            value = activeEventName
-                        )
-                        ProfileInfoRow(
-                            icon = Icons.Default.CloudDone,
-                            label = "Servidor Backend (Render)",
-                            value = "eventpass-web-cnyn.onrender.com"
-                        )
-                        ProfileInfoRow(
-                            icon = Icons.Default.Storage,
-                            label = "Motor de Persistencia",
-                            value = "Room SQLite Offline-First + Retrofit"
-                        )
-                    }
+                    Text(
+                        text = "DIAGNÓSTICO DE TERMINAL",
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MutedFog,
+                        fontWeight = FontWeight.Bold
+                    )
+                    HorizontalDivider(color = SteelOutline)
+                    ProfileInfoRow(
+                        icon = Icons.Default.Event,
+                        label = "Evento activo en puerta",
+                        value = activeEventName
+                    )
+                    ProfileInfoRow(
+                        icon = Icons.Default.CloudDone,
+                        label = "Servidor Backend (HTTPS)",
+                        value = "eventpass-web-cnyn.onrender.com"
+                    )
+                    ProfileInfoRow(
+                        icon = Icons.Default.Storage,
+                        label = "Motor Offline-First",
+                        value = "Room SQLite + Sincronización por Lotes"
+                    )
                 }
             }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // Tarjeta 2: Manual de Seguridad, Privacidad y Ética
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(16.dp),
+                colors = CardDefaults.cardColors(containerColor = DeepSlate),
+                border = BorderStroke(1.dp, SteelOutline)
+            ) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(18.dp),
+                    verticalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    Text(
+                        text = "PROTOCOLO DE SEGURIDAD Y TRANSPARENCIA",
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MutedFog,
+                        fontWeight = FontWeight.Bold
+                    )
+                    HorizontalDivider(color = SteelOutline)
+                    ProfileInfoRow(
+                        icon = Icons.Default.Lock,
+                        label = "Privacidad y Protección de Datos",
+                        value = "Credenciales en EncryptedSharedPreferences y datos mínimos sin uso comercial."
+                    )
+                    ProfileInfoRow(
+                        icon = Icons.Default.Shield,
+                        label = "Seguridad Anti-Inyección",
+                        value = "Sanitización local de códigos QR, tráfico HTTPS obligatorio y cabeceras protegidas."
+                    )
+                    ProfileInfoRow(
+                        icon = Icons.Default.QrCodeScanner,
+                        label = "Uso Ético de IA (Google ML Kit)",
+                        value = "Reconocimiento óptico 100% local en el dispositivo; sin biometría ni rastreo."
+                    )
+                    ProfileInfoRow(
+                        icon = Icons.Default.Eco,
+                        label = "Impacto Ambiental (Green Coding)",
+                        value = "Polling inteligente de 15s con pausa en segundo plano y boletos 100% digitales (Cero Papel)."
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.height(24.dp))
 
             Button(
                 onClick = {
@@ -212,6 +267,8 @@ fun ProfileScreen(
                     fontWeight = FontWeight.Bold
                 )
             }
+
+            Spacer(modifier = Modifier.height(12.dp))
         }
     }
 }
@@ -224,10 +281,10 @@ private fun ProfileInfoRow(
 ) {
     Row(
         modifier = Modifier.fillMaxWidth(),
-        verticalAlignment = Alignment.CenterVertically
+        verticalAlignment = Alignment.Top
     ) {
         Surface(
-            modifier = Modifier.size(38.dp),
+            modifier = Modifier.size(36.dp),
             shape = RoundedCornerShape(10.dp),
             color = MidnightPanel,
             border = BorderStroke(1.dp, SteelOutline)
@@ -237,7 +294,7 @@ private fun ProfileInfoRow(
                     imageVector = icon,
                     contentDescription = null,
                     tint = NuxtSignal,
-                    modifier = Modifier.size(20.dp)
+                    modifier = Modifier.size(18.dp)
                 )
             }
         }
@@ -250,8 +307,8 @@ private fun ProfileInfoRow(
             )
             Text(
                 text = value,
-                style = MaterialTheme.typography.bodyLarge,
-                fontWeight = FontWeight.SemiBold,
+                style = MaterialTheme.typography.bodyMedium,
+                fontWeight = FontWeight.Medium,
                 color = SignalWhite
             )
         }

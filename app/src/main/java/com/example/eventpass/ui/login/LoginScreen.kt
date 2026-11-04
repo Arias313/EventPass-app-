@@ -1,6 +1,7 @@
 package com.example.eventpass.ui.login
 
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -62,7 +63,6 @@ import com.example.eventpass.ui.theme.EventPassTheme
 import com.example.eventpass.ui.theme.MidnightPanel
 import com.example.eventpass.ui.theme.MutedFog
 import com.example.eventpass.ui.theme.NuxtSignal
-import com.example.eventpass.ui.theme.NuxtSignalSurface
 import com.example.eventpass.ui.theme.SignalWhite
 import com.example.eventpass.ui.theme.StatusRed
 import com.example.eventpass.ui.theme.StatusRedContainer
@@ -122,35 +122,40 @@ fun LoginContent(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Center
             ) {
-                // Emblema superior EventPass
                 Surface(
-                    modifier = Modifier.size(72.dp),
+                    modifier = Modifier.size(68.dp),
                     shape = CircleShape,
-                    color = NuxtSignalSurface,
-                    border = BorderStroke(1.dp, NuxtSignal.copy(alpha = 0.4f))
+                    color = DeepSlate,
+                    border = BorderStroke(1.dp, SteelOutline)
                 ) {
                     Box(contentAlignment = Alignment.Center) {
                         Icon(
                             imageVector = Icons.Filled.QrCodeScanner,
                             contentDescription = "EventPass",
                             tint = NuxtSignal,
-                            modifier = Modifier.size(34.dp)
+                            modifier = Modifier.size(32.dp)
                         )
                     }
                 }
 
                 Spacer(modifier = Modifier.height(14.dp))
 
-                Surface(
-                    color = NuxtSignalSurface,
-                    shape = RoundedCornerShape(20.dp),
-                    border = BorderStroke(1.dp, NuxtSignal.copy(alpha = 0.3f))
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier
+                        .background(color = DeepSlate, shape = RoundedCornerShape(16.dp))
+                        .padding(horizontal = 12.dp, vertical = 4.dp)
                 ) {
+                    Box(
+                        modifier = Modifier
+                            .size(6.dp)
+                            .background(color = NuxtSignal, shape = CircleShape)
+                    )
+                    Spacer(modifier = Modifier.width(6.dp))
                     Text(
-                        text = "TERMINAL MÓVIL ANDROID • RETROFIT",
-                        color = NuxtSignal,
-                        style = MaterialTheme.typography.labelSmall,
-                        modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp)
+                        text = "TERMINAL DE ACCESO",
+                        color = MutedFog,
+                        style = MaterialTheme.typography.labelSmall
                     )
                 }
 
@@ -174,7 +179,6 @@ fun LoginContent(
 
                 Spacer(modifier = Modifier.height(24.dp))
 
-                // Tarjeta de formulario estilo Card-Terminal de la web
                 Card(
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(16.dp),
@@ -189,12 +193,12 @@ fun LoginContent(
                         val textFieldColors = OutlinedTextFieldDefaults.colors(
                             focusedBorderColor = NuxtSignal,
                             unfocusedBorderColor = SteelOutline,
-                            focusedLabelColor = NuxtSignal,
+                            focusedLabelColor = SignalWhite,
                             unfocusedLabelColor = MutedFog,
                             cursorColor = NuxtSignal,
-                            focusedLeadingIconColor = NuxtSignal,
+                            focusedLeadingIconColor = SignalWhite,
                             unfocusedLeadingIconColor = MutedFog,
-                            focusedTrailingIconColor = NuxtSignal,
+                            focusedTrailingIconColor = SignalWhite,
                             unfocusedTrailingIconColor = MutedFog,
                             focusedContainerColor = MidnightPanel,
                             unfocusedContainerColor = MidnightPanel

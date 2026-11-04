@@ -54,8 +54,11 @@ object RetrofitClient {
         chain.proceed(modifiedRequest)
     }
 
+    // Seguridad (Pilar 1.2 y 2.2): Nivel BASIC y ofuscación de Authorization para no exponer
+    // contraseñas ni tokens JWT en el Logcat del dispositivo.
     private val loggingInterceptor = HttpLoggingInterceptor().apply {
-        level = HttpLoggingInterceptor.Level.BODY
+        level = HttpLoggingInterceptor.Level.BASIC
+        redactHeader("Authorization")
     }
 
     private val okHttpClient: OkHttpClient by lazy {

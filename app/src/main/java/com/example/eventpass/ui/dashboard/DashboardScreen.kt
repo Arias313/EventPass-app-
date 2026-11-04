@@ -1,6 +1,7 @@
 package com.example.eventpass.ui.dashboard
 
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -24,7 +25,6 @@ import androidx.compose.material.icons.filled.Event
 import androidx.compose.material.icons.filled.Groups
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.QrCodeScanner
-import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Verified
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -36,7 +36,6 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuAnchorType
 import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.ExposedDropdownMenuDefaults
-import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LinearProgressIndicator
@@ -76,7 +75,6 @@ import com.example.eventpass.ui.theme.EventPassTheme
 import com.example.eventpass.ui.theme.MidnightPanel
 import com.example.eventpass.ui.theme.MutedFog
 import com.example.eventpass.ui.theme.NuxtSignal
-import com.example.eventpass.ui.theme.NuxtSignalSurface
 import com.example.eventpass.ui.theme.SignalWhite
 import com.example.eventpass.ui.theme.StatusYellow
 import com.example.eventpass.ui.theme.SteelOutline
@@ -100,7 +98,6 @@ fun DashboardScreen(
 
     DashboardContent(
         uiState = uiState,
-        onRefresh = { viewModel.loadDashboardData(silent = false) },
         onSelectEvent = viewModel::selectEvent,
         onRegisterAccess = viewModel::registerAccess,
         onNavigateToScanner = onNavigateToScanner,
@@ -113,7 +110,6 @@ fun DashboardScreen(
 @Composable
 private fun DashboardContent(
     uiState: DashboardUiState,
-    onRefresh: () -> Unit = {},
     onSelectEvent: (EventoDto) -> Unit = {},
     onRegisterAccess: (Assistant) -> Unit,
     onNavigateToScanner: () -> Unit = {},
@@ -139,32 +135,35 @@ private fun DashboardContent(
                             fontWeight = FontWeight.ExtraBold,
                             color = SignalWhite
                         )
-                        Spacer(modifier = Modifier.width(10.dp))
-                        Surface(
-                            color = if (isOffline) StatusYellow.copy(alpha = 0.15f) else NuxtSignalSurface,
-                            shape = RoundedCornerShape(20.dp),
-                            border = BorderStroke(
-                                1.dp,
-                                if (isOffline) StatusYellow.copy(alpha = 0.4f) else NuxtSignal.copy(alpha = 0.35f)
-                            )
+                        Spacer(modifier = Modifier.width(12.dp))
+                        // Indicador de conexión minimalista (punto de color + texto neutro)
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            modifier = Modifier
+                                .background(
+                                    color = DeepSlate,
+                                    shape = RoundedCornerShape(16.dp)
+                                )
+                                .padding(horizontal = 10.dp, vertical = 4.dp)
                         ) {
+                            Box(
+                                modifier = Modifier
+                                    .size(7.dp)
+                                    .background(
+                                        color = if (isOffline) StatusYellow else NuxtSignal,
+                                        shape = CircleShape
+                                    )
+                            )
+                            Spacer(modifier = Modifier.width(6.dp))
                             Text(
-                                text = if (isOffline) "● Offline" else "● En línea",
-                                color = if (isOffline) StatusYellow else NuxtSignal,
-                                style = MaterialTheme.typography.labelSmall,
-                                modifier = Modifier.padding(horizontal = 9.dp, vertical = 3.dp)
+                                text = if (isOffline) "Offline" else "En línea",
+                                color = MutedFog,
+                                style = MaterialTheme.typography.labelSmall
                             )
                         }
                     }
                 },
                 actions = {
-                    IconButton(onClick = onRefresh) {
-                        Icon(
-                            imageVector = Icons.Filled.Refresh,
-                            contentDescription = "Recargar ahora",
-                            tint = SignalWhite
-                        )
-                    }
                     IconButton(onClick = onNavigateToProfile) {
                         Icon(
                             imageVector = Icons.Filled.Person,
@@ -177,18 +176,6 @@ private fun DashboardContent(
                     containerColor = MidnightPanel
                 )
             )
-        },
-        floatingActionButton = {
-            FloatingActionButton(
-                onClick = onNavigateToScanner,
-                containerColor = NuxtSignal,
-                contentColor = MidnightPanel
-            ) {
-                Icon(
-                    imageVector = Icons.Filled.QrCodeScanner,
-                    contentDescription = "Escanear QR"
-                )
-            }
         }
     ) { innerPadding ->
         Box(
@@ -201,7 +188,7 @@ private fun DashboardContent(
                     .fillMaxSize()
                     .padding(horizontal = 16.dp)
             ) {
-                // Selector robusto de Evento en la cabecera
+                // Selector de Evento sobrio con borde SteelOutline (sin borde verde brillante)
                 EventSelectorHeader(
                     eventos = uiState.eventos,
                     selectedEventName = uiState.selectedEventName,
@@ -217,7 +204,7 @@ private fun DashboardContent(
                     )
                 }
 
-                Spacer(modifier = Modifier.height(16.dp))
+                Spacer(modifier = Modifier.height(18.dp))
 
                 Text(
                     text = "MONITOREO DE ACCESO EN VIVO",
@@ -228,7 +215,7 @@ private fun DashboardContent(
 
                 Spacer(modifier = Modifier.height(10.dp))
 
-                // Tarjetas de métricas más grandes y legibles
+                // Tarjetas de métricas grandes y legibles
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.spacedBy(12.dp)
@@ -253,6 +240,7 @@ private fun DashboardContent(
 
                 Spacer(modifier = Modifier.height(18.dp))
 
+                // Único botón principal de escaneo (ergonómico y sin FAB redundante)
                 Button(
                     onClick = onNavigateToScanner,
                     modifier = Modifier
@@ -293,7 +281,7 @@ private fun DashboardContent(
                     Text(
                         text = "${uiState.recentAssistants.size} registros",
                         style = MaterialTheme.typography.bodySmall,
-                        color = NuxtSignal
+                        color = MutedFog
                     )
                 }
 
@@ -302,7 +290,7 @@ private fun DashboardContent(
                 LazyColumn(
                     modifier = Modifier.fillMaxSize(),
                     verticalArrangement = Arrangement.spacedBy(8.dp),
-                    contentPadding = PaddingValues(bottom = 84.dp)
+                    contentPadding = PaddingValues(bottom = 24.dp)
                 ) {
                     items(uiState.recentAssistants, key = { it.id }) { assistant ->
                         AttendeeRowCard(assistant = assistant)
@@ -348,17 +336,19 @@ private fun EventSelectorHeader(
                 Icon(
                     imageVector = Icons.Filled.Event,
                     contentDescription = "Evento",
-                    tint = NuxtSignal
+                    tint = MutedFog
                 )
             },
             trailingIcon = {
                 ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded)
             },
             colors = OutlinedTextFieldDefaults.colors(
-                focusedBorderColor = NuxtSignal,
+                focusedBorderColor = SteelOutline,
                 unfocusedBorderColor = SteelOutline,
-                focusedLabelColor = NuxtSignal,
+                focusedLabelColor = MutedFog,
                 unfocusedLabelColor = MutedFog,
+                focusedTrailingIconColor = MutedFog,
+                unfocusedTrailingIconColor = MutedFog,
                 focusedContainerColor = DeepSlate,
                 unfocusedContainerColor = DeepSlate,
                 focusedTextColor = SignalWhite,
@@ -388,7 +378,7 @@ private fun EventSelectorHeader(
                             Text(
                                 text = "Confirmados: ${evento.confirmedCount}/${evento.capacity}",
                                 style = MaterialTheme.typography.bodySmall,
-                                color = NuxtSignal
+                                color = MutedFog
                             )
                         }
                     },
@@ -492,21 +482,12 @@ private fun AttendeeRowCard(
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier.weight(1f)
             ) {
-                Surface(
-                    modifier = Modifier.size(38.dp),
-                    shape = CircleShape,
-                    color = NuxtSignalSurface,
-                    border = BorderStroke(1.dp, NuxtSignal.copy(alpha = 0.35f))
-                ) {
-                    Box(contentAlignment = Alignment.Center) {
-                        Icon(
-                            imageVector = Icons.Filled.CheckCircle,
-                            contentDescription = null,
-                            modifier = Modifier.size(20.dp),
-                            tint = NuxtSignal
-                        )
-                    }
-                }
+                Icon(
+                    imageVector = Icons.Filled.CheckCircle,
+                    contentDescription = null,
+                    modifier = Modifier.size(24.dp),
+                    tint = NuxtSignal
+                )
                 Spacer(modifier = Modifier.width(12.dp))
                 Column {
                     Text(
@@ -520,7 +501,7 @@ private fun AttendeeRowCard(
                         style = MaterialTheme.typography.bodySmall.copy(
                             fontFamily = FontFamily.Monospace
                         ),
-                        color = NuxtSignal
+                        color = MutedFog
                     )
                 }
             }
