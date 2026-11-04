@@ -2,8 +2,12 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.ksp)
-// Agrega esta línea:
-    id("com.google.gms.google-services")
+}
+
+// Aplica google-services solo si google-services.json está presente localmente,
+// permitiendo que el repositorio compile directamente al clonarse desde GitHub en otro equipo.
+if (file("google-services.json").exists()) {
+    apply(plugin = "com.google.gms.google-services")
 }
 android {
     namespace = "com.example.eventpass"
