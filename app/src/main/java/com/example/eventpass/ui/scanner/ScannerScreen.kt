@@ -10,32 +10,42 @@ import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.Preview
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.view.PreviewView
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.CameraAlt
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Error
+import androidx.compose.material.icons.filled.QrCodeScanner
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
@@ -49,6 +59,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalHapticFeedback
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -58,6 +69,16 @@ import androidx.core.content.ContextCompat
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.eventpass.ui.theme.DeepSlate
+import com.example.eventpass.ui.theme.MidnightPanel
+import com.example.eventpass.ui.theme.MutedFog
+import com.example.eventpass.ui.theme.NuxtSignal
+import com.example.eventpass.ui.theme.NuxtSignalSurface
+import com.example.eventpass.ui.theme.SignalWhite
+import com.example.eventpass.ui.theme.StatusRed
+import com.example.eventpass.ui.theme.StatusRedContainer
+import com.example.eventpass.ui.theme.StatusYellow
+import com.example.eventpass.ui.theme.SteelOutline
 import java.util.concurrent.Executors
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -99,26 +120,52 @@ fun ScannerScreen(
         }
     }
 
-    // Color del marco según el estado actual
+    // Color del marco según el estado actual (Paleta oficial EventPass)
     val frameColor = when (scannerState) {
-        is ScannerState.Idle -> Color.White.copy(alpha = 0.85f)
-        is ScannerState.Processing -> Color.Yellow
-        is ScannerState.Valid -> Color(0xFF4CAF50) // Verde éxito
-        is ScannerState.Invalid -> Color(0xFFE53935) // Rojo error
+        is ScannerState.Idle -> SignalWhite.copy(alpha = 0.85f)
+        is ScannerState.Processing -> StatusYellow
+        is ScannerState.Valid -> NuxtSignal
+        is ScannerState.Invalid -> StatusRed
     }
 
     Scaffold(
+        containerColor = MidnightPanel,
         topBar = {
             TopAppBar(
-                title = { Text("Escanear Acceso") },
+                title = {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Text(
+                            text = "Escanear Acceso",
+                            fontWeight = FontWeight.Bold,
+                            color = SignalWhite
+                        )
+                        Spacer(modifier = Modifier.width(10.dp))
+                        Surface(
+                            color = NuxtSignalSurface,
+                            shape = RoundedCornerShape(20.dp),
+                            border = BorderStroke(1.dp, NuxtSignal.copy(alpha = 0.35f))
+                        ) {
+                            Text(
+                                text = "ML KIT • QR",
+                                color = NuxtSignal,
+                                style = MaterialTheme.typography.labelSmall,
+                                modifier = Modifier.padding(horizontal = 8.dp, vertical = 3.dp)
+                            )
+                        }
+                    }
+                },
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = "Volver"
+                            contentDescription = "Volver",
+                            tint = SignalWhite
                         )
                     }
-                }
+                },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = MidnightPanel
+                )
             )
         }
     ) { innerPadding ->
@@ -130,7 +177,6 @@ fun ScannerScreen(
             contentAlignment = Alignment.Center
         ) {
             if (hasCameraPermission) {
-                // Cámara activa solo si el permiso está concedido
                 CameraPreview(
                     modifier = Modifier.fillMaxSize(),
                     onQrCodeScanned = { qrResult ->
@@ -145,7 +191,7 @@ fun ScannerScreen(
                         .border(
                             width = 4.dp,
                             color = frameColor,
-                            shape = RoundedCornerShape(20.dp)
+                            shape = RoundedCornerShape(24.dp)
                         )
                 )
 
@@ -153,60 +199,75 @@ fun ScannerScreen(
                 Column(
                     modifier = Modifier
                         .align(Alignment.BottomCenter)
-                        .padding(horizontal = 24.dp, vertical = 40.dp)
+                        .padding(horizontal = 24.dp, vertical = 36.dp)
                         .fillMaxWidth(),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     when (val state = scannerState) {
                         is ScannerState.Processing -> {
-                            Box(
-                                modifier = Modifier
-                                    .background(Color.Black.copy(alpha = 0.8f), RoundedCornerShape(12.dp))
-                                    .padding(horizontal = 20.dp, vertical = 14.dp),
-                                contentAlignment = Alignment.Center
+                            Card(
+                                shape = RoundedCornerShape(16.dp),
+                                colors = CardDefaults.cardColors(
+                                    containerColor = DeepSlate.copy(alpha = 0.95f)
+                                ),
+                                border = BorderStroke(1.5.dp, StatusYellow)
                             ) {
-                                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                Column(
+                                    modifier = Modifier.padding(horizontal = 24.dp, vertical = 16.dp),
+                                    horizontalAlignment = Alignment.CenterHorizontally
+                                ) {
                                     CircularProgressIndicator(
-                                        color = Color.Yellow,
+                                        color = StatusYellow,
                                         modifier = Modifier.size(32.dp),
                                         strokeWidth = 3.dp
                                     )
-                                    Spacer(modifier = Modifier.height(8.dp))
+                                    Spacer(modifier = Modifier.height(10.dp))
                                     Text(
-                                        text = "Validando con el servidor...",
-                                        color = Color.Yellow,
-                                        fontSize = 15.sp,
-                                        fontWeight = FontWeight.Medium
+                                        text = "Validando pase de acceso...",
+                                        color = StatusYellow,
+                                        style = MaterialTheme.typography.titleMedium,
+                                        fontWeight = FontWeight.Bold
                                     )
                                 }
                             }
                         }
 
                         is ScannerState.Valid -> {
-                            Box(
-                                modifier = Modifier
-                                    .background(Color(0xFF1B5E20).copy(alpha = 0.9f), RoundedCornerShape(12.dp))
-                                    .padding(horizontal = 20.dp, vertical = 14.dp)
+                            Card(
+                                modifier = Modifier.fillMaxWidth(),
+                                shape = RoundedCornerShape(16.dp),
+                                colors = CardDefaults.cardColors(
+                                    containerColor = NuxtSignalSurface.copy(alpha = 0.95f)
+                                ),
+                                border = BorderStroke(2.dp, NuxtSignal)
                             ) {
-                                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                Column(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(horizontal = 20.dp, vertical = 16.dp),
+                                    horizontalAlignment = Alignment.CenterHorizontally
+                                ) {
                                     Icon(
                                         imageVector = Icons.Default.CheckCircle,
                                         contentDescription = null,
-                                        tint = Color.White,
-                                        modifier = Modifier.size(36.dp)
+                                        tint = NuxtSignal,
+                                        modifier = Modifier.size(40.dp)
                                     )
-                                    Spacer(modifier = Modifier.height(4.dp))
+                                    Spacer(modifier = Modifier.height(6.dp))
                                     Text(
                                         text = state.message,
-                                        color = Color.White,
-                                        fontWeight = FontWeight.Bold,
+                                        color = SignalWhite,
+                                        fontWeight = FontWeight.ExtraBold,
                                         fontSize = 18.sp,
                                         textAlign = TextAlign.Center
                                     )
+                                    Spacer(modifier = Modifier.height(4.dp))
                                     Text(
-                                        text = "Boleto: ${state.code}",
-                                        color = Color.White.copy(alpha = 0.85f),
-                                        fontSize = 13.sp,
+                                        text = "PIN: ${state.code}",
+                                        color = NuxtSignal,
+                                        style = MaterialTheme.typography.bodySmall.copy(
+                                            fontFamily = FontFamily.Monospace
+                                        ),
                                         textAlign = TextAlign.Center
                                     )
                                 }
@@ -214,30 +275,41 @@ fun ScannerScreen(
                         }
 
                         is ScannerState.Invalid -> {
-                            Box(
-                                modifier = Modifier
-                                    .background(Color(0xFFB71C1C).copy(alpha = 0.9f), RoundedCornerShape(12.dp))
-                                    .padding(horizontal = 20.dp, vertical = 14.dp)
+                            Card(
+                                modifier = Modifier.fillMaxWidth(),
+                                shape = RoundedCornerShape(16.dp),
+                                colors = CardDefaults.cardColors(
+                                    containerColor = StatusRedContainer.copy(alpha = 0.95f)
+                                ),
+                                border = BorderStroke(2.dp, StatusRed)
                             ) {
-                                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                Column(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(horizontal = 20.dp, vertical = 16.dp),
+                                    horizontalAlignment = Alignment.CenterHorizontally
+                                ) {
                                     Icon(
                                         imageVector = Icons.Default.Error,
                                         contentDescription = null,
-                                        tint = Color.White,
-                                        modifier = Modifier.size(36.dp)
+                                        tint = StatusRed,
+                                        modifier = Modifier.size(40.dp)
                                     )
-                                    Spacer(modifier = Modifier.height(4.dp))
+                                    Spacer(modifier = Modifier.height(6.dp))
                                     Text(
                                         text = state.message,
-                                        color = Color.White,
-                                        fontWeight = FontWeight.Bold,
+                                        color = SignalWhite,
+                                        fontWeight = FontWeight.ExtraBold,
                                         fontSize = 18.sp,
                                         textAlign = TextAlign.Center
                                     )
+                                    Spacer(modifier = Modifier.height(4.dp))
                                     Text(
                                         text = "Código: ${state.code}",
-                                        color = Color.White.copy(alpha = 0.85f),
-                                        fontSize = 13.sp,
+                                        color = StatusRed,
+                                        style = MaterialTheme.typography.bodySmall.copy(
+                                            fontFamily = FontFamily.Monospace
+                                        ),
                                         textAlign = TextAlign.Center
                                     )
                                 }
@@ -245,15 +317,30 @@ fun ScannerScreen(
                         }
 
                         is ScannerState.Idle -> {
-                            Text(
-                                text = "Apunta el código QR del boleto dentro del recuadro",
-                                color = Color.White,
-                                fontSize = 14.sp,
-                                modifier = Modifier
-                                    .background(Color.Black.copy(alpha = 0.65f), RoundedCornerShape(8.dp))
-                                    .padding(horizontal = 16.dp, vertical = 8.dp),
-                                textAlign = TextAlign.Center
-                            )
+                            Surface(
+                                color = DeepSlate.copy(alpha = 0.9f),
+                                shape = RoundedCornerShape(12.dp),
+                                border = BorderStroke(1.dp, SteelOutline)
+                            ) {
+                                Row(
+                                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 10.dp),
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Default.QrCodeScanner,
+                                        contentDescription = null,
+                                        tint = NuxtSignal,
+                                        modifier = Modifier.size(18.dp)
+                                    )
+                                    Spacer(modifier = Modifier.width(8.dp))
+                                    Text(
+                                        text = "Apunta el código QR del boleto dentro del recuadro",
+                                        color = SignalWhite,
+                                        style = MaterialTheme.typography.bodySmall,
+                                        textAlign = TextAlign.Center
+                                    )
+                                }
+                            }
                         }
                     }
                 }
@@ -262,35 +349,53 @@ fun ScannerScreen(
                 Column(
                     modifier = Modifier
                         .fillMaxSize()
+                        .background(MidnightPanel)
                         .padding(32.dp),
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.Center
                 ) {
-                    Icon(
-                        imageVector = Icons.Default.CameraAlt,
-                        contentDescription = "Permiso de cámara",
-                        tint = MaterialTheme.colorScheme.primary,
-                        modifier = Modifier.size(64.dp)
-                    )
-                    Spacer(modifier = Modifier.height(16.dp))
+                    Surface(
+                        modifier = Modifier.size(80.dp),
+                        shape = CircleShape,
+                        color = NuxtSignalSurface,
+                        border = BorderStroke(1.5.dp, NuxtSignal.copy(alpha = 0.45f))
+                    ) {
+                        Box(contentAlignment = Alignment.Center) {
+                            Icon(
+                                imageVector = Icons.Default.CameraAlt,
+                                contentDescription = "Permiso de cámara",
+                                tint = NuxtSignal,
+                                modifier = Modifier.size(38.dp)
+                            )
+                        }
+                    }
+                    Spacer(modifier = Modifier.height(18.dp))
                     Text(
                         text = "Permiso de cámara obligatorio",
-                        style = MaterialTheme.typography.titleMedium,
+                        style = MaterialTheme.typography.titleLarge,
                         fontWeight = FontWeight.Bold,
-                        color = Color.White
+                        color = SignalWhite
                     )
                     Spacer(modifier = Modifier.height(8.dp))
                     Text(
                         text = "EventPass requiere acceso a la cámara para escanear los boletos QR del personal y asistentes.",
-                        color = Color.White.copy(alpha = 0.8f),
+                        color = MutedFog,
                         textAlign = TextAlign.Center,
-                        fontSize = 14.sp
+                        style = MaterialTheme.typography.bodyMedium
                     )
                     Spacer(modifier = Modifier.height(24.dp))
                     Button(
-                        onClick = { permissionLauncher.launch(Manifest.permission.CAMERA) }
+                        onClick = { permissionLauncher.launch(Manifest.permission.CAMERA) },
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = NuxtSignal,
+                            contentColor = MidnightPanel
+                        ),
+                        shape = RoundedCornerShape(12.dp)
                     ) {
-                        Text("Conceder Permiso")
+                        Text(
+                            text = "Conceder Permiso",
+                            fontWeight = FontWeight.Bold
+                        )
                     }
                 }
             }
@@ -307,7 +412,6 @@ private fun CameraPreview(
     val cameraExecutor = remember { Executors.newSingleThreadExecutor() }
     var cameraProvider by remember { mutableStateOf<ProcessCameraProvider?>(null) }
 
-    // Limpieza de recursos al salir de la pantalla para evitar fugas de memoria o cámara congelada
     DisposableEffect(lifecycleOwner) {
         onDispose {
             cameraProvider?.unbindAll()
