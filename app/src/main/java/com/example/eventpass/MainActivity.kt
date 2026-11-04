@@ -12,6 +12,7 @@ import androidx.navigation.compose.rememberNavController
 import com.example.eventpass.data.remote.RetrofitClient
 import com.example.eventpass.ui.dashboard.DashboardScreen
 import com.example.eventpass.ui.login.LoginScreen
+import com.example.eventpass.ui.profile.ProfileScreen
 import com.example.eventpass.ui.scanner.ScannerScreen
 import com.example.eventpass.ui.splash.SplashScreen
 import com.example.eventpass.ui.theme.EventPassTheme
@@ -49,12 +50,23 @@ class MainActivity : ComponentActivity() {
                     }
                     composable("dashboard") {
                         DashboardScreen(
-                            onNavigateToScanner = { navController.navigate("scanner") }
+                            onNavigateToScanner = { navController.navigate("scanner") },
+                            onNavigateToProfile = { navController.navigate("profile") }
                         )
                     }
                     composable("scanner") {
                         ScannerScreen(
                             onNavigateBack = { navController.popBackStack() }
+                        )
+                    }
+                    composable("profile") {
+                        ProfileScreen(
+                            onNavigateBack = { navController.popBackStack() },
+                            onLogoutSuccess = {
+                                navController.navigate("login") {
+                                    popUpTo("dashboard") { inclusive = true }
+                                }
+                            }
                         )
                     }
                 }

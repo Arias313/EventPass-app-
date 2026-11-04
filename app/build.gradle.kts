@@ -1,6 +1,7 @@
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.compose)
+    alias(libs.plugins.ksp)
 // Agrega esta línea:
     id("com.google.gms.google-services")
 }
@@ -77,8 +78,9 @@ dependencies {
     // --- REQUERIMIENTOS DEL PROFESOR ---
 
     // 1. Base de datos SQLite (Room) para modo Offline
-    implementation("androidx.room:room-runtime:2.6.1")
-    implementation("androidx.room:room-ktx:2.6.1")
+    implementation("androidx.room:room-runtime:2.7.2")
+    implementation("androidx.room:room-ktx:2.7.2")
+    ksp("androidx.room:room-compiler:2.7.2")
 
     // 2. Extra: Conexión Web API (Retrofit)
     implementation("com.squareup.retrofit2:retrofit:2.11.0")

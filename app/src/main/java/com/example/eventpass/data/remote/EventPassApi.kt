@@ -172,6 +172,36 @@ data class CheckInResponse(
 )
 
 /**
+ * Modelos para sincronización por lotes (Offline Batch Sync: POST /api/checkin/sync).
+ */
+data class BatchCheckInItemDto(
+    @SerializedName("idLocal")
+    val idLocal: String,
+
+    @SerializedName("eventoId")
+    val eventoId: String,
+
+    @SerializedName("qrCode")
+    val qrCode: String,
+
+    @SerializedName("timestampLocal")
+    val timestampLocal: String
+)
+
+data class BatchSyncRequest(
+    @SerializedName("checkins")
+    val checkins: List<BatchCheckInItemDto>
+)
+
+data class BatchSyncResponse(
+    @SerializedName("status")
+    val status: String? = null,
+
+    @SerializedName("message")
+    val message: String? = null
+)
+
+/**
  * Interfaz Retrofit para el servicio REST de EventPass en Render.
  */
 interface EventPassApi {
@@ -194,4 +224,9 @@ interface EventPassApi {
         @Path("eventoId") eventoId: String,
         @Body request: CheckInRequest
     ): Response<CheckInResponse>
+
+    @POST("api/checkin/sync")
+    suspend fun syncPendingCheckIns(
+        @Body request: BatchSyncRequest
+    ): Response<BatchSyncResponse>
 }
